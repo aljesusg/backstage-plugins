@@ -1,6 +1,6 @@
 import { ConfigApi } from '@backstage/core-plugin-api';
 import { ErrorResponseBody } from '@backstage/errors';
-import { Namespace } from '@janus-idp/plugin-kiali-backend/src/types/';
+import { Namespace } from '@janus-idp/plugin-kiali-common';
 
 export const getNamespaces = async (
   configApi: ConfigApi,

@@ -7,6 +7,8 @@ import { ErrorResponseBody } from '@backstage/errors';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { getNamespaces } from '../../helpers/apiClient';
 import { Namespace } from '@janus-idp/plugin-kiali-common';
+import { Entity } from '@backstage/catalog-model';
+import { filterNs } from '../../helpers/filters';
 
 type DenseTableProps = {
   namespaces: Namespace[];
@@ -33,17 +35,20 @@ export const DenseTable = ({ namespaces }: DenseTableProps) => {
   );
 };
 
-export const ExampleFetchComponent = () => {
-  const configApi = useApi(configApiRef);
+type ExampleFetchComponentProps = {
+  entity: Entity;
+  refreshIntervalMs?: number;
+}
 
+export const ExampleFetchComponent = (props: ExampleFetchComponentProps) => {
+  const configApi = useApi(configApiRef);
   const [namespaces, setNamespaces] = useState<Namespace[]>([]);
   const [{ loading, error }, refresh] = useAsyncFn(async () => {
-    const namespaces = await getNamespaces(configApi);
+    const namespaces = await getNamespaces(configApi);    
     if ('error' in namespaces) {
       throw new Error((namespaces as ErrorResponseBody).error.message);
     }
-    setNamespaces(namespaces)
-    
+    setNamespaces(filterNs(namespaces, props.entity))    
   }, [], { loading: true },);
   useDebounce(refresh, 10);
 

@@ -1,7 +1,6 @@
 import { CatalogApi } from '@backstage/catalog-client';
 import { Logger } from 'winston';
 import { Namespace } from '@janus-idp/plugin-kiali-common';
-import { useEntity } from '@backstage/plugin-catalog-react';
 import { KIALI_ENDPOINTS } from '../types/'
 
 export type Options = {
@@ -31,8 +30,6 @@ export class KialiApiImpl implements KialiApi {
         this.kiali = options.kiali
         this.logger = options.logger;
         this.catalogApi = options.catalogApi;
-        const entity = useEntity()
-        console.log(entity)
     }
 
     async fetchNamespaces(): Promise<Namespace[]> {
