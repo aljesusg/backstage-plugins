@@ -6,7 +6,7 @@ import useDebounce from 'react-use/lib/useDebounce';
 import { ErrorResponseBody } from '@backstage/errors';
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { getNamespaces } from '../../helpers/apiClient';
-import { Namespace } from '@janus-idp/plugin-kiali-backend/src/types/';
+import { Namespace } from '@janus-idp/plugin-kiali-common';
 
 type DenseTableProps = {
   namespaces: Namespace[];

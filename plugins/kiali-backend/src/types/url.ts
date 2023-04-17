@@ -1,4 +1,4 @@
-export const KialiEndpoints = {
+export const KIALI_ENDPOINTS = {
     aggregateGraphElements: (namespace: string, aggregate: string, aggregateValue: string) =>
         `api/namespaces/${namespace}/aggregates/${aggregate}/${aggregateValue}/graph`,
     aggregateByServiceGraphElements: (
