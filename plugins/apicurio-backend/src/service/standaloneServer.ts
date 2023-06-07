@@ -16,7 +16,8 @@ export async function startStandaloneServer(
   const logger = options.logger.child({ service: 'apicurio-backend' });
   logger.debug('Starting application server...');
   const router = await createRouter({
-    logger, config: new ConfigReader({})
+    logger,
+    config: new ConfigReader({}),
   });
 
   let service = createServiceBuilder(module)

@@ -2,32 +2,29 @@ import {
   createApiFactory,
   createPlugin,
   discoveryApiRef,
-  createRoutableExtension
+  createRoutableExtension,
 } from '@backstage/core-plugin-api';
-import { useEntity } from '@backstage/plugin-catalog-react';
 import { artifactRouteRef, rootRouteRef } from './routes';
 import { ApicurioApiClient, apicurioApiRef } from './api';
-import { APICURIO_ANNOTATION } from '@janus-idp/plugin-apicurio-common'
+import { APICURIO_ANNOTATION } from '@janus-idp/backstage-plugin-apicurio-common';
 import { Entity } from '@backstage/catalog-model';
 
 export const apicurioPlugin = createPlugin({
   id: 'apicurio',
   routes: {
     root: rootRouteRef,
-    artifact: artifactRouteRef
+    artifact: artifactRouteRef,
   },
   apis: [
     createApiFactory({
       api: apicurioApiRef,
       deps: {
-        discoveryApi: discoveryApiRef
+        discoveryApi: discoveryApiRef,
       },
-      factory: ({ discoveryApi }) =>
-        new ApicurioApiClient({ discoveryApi, entity: useEntity().entity }),
+      factory: ({ discoveryApi }) => new ApicurioApiClient(discoveryApi),
     }),
   ],
 });
-
 
 export const ApicurioPage = apicurioPlugin.provide(
   createRoutableExtension({

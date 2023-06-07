@@ -8,14 +8,14 @@ export interface ArtifactsSearchResults {
   count: number;
   page: number;
   pageSize: number;
-} 
+}
 
 export class ArtifactDetail {
   public artifact: ArtifactMetaData | null;
   public artifactContent: string;
   public versions: SearchedVersionResults | null;
   public rules: Rule[] | null;
-  public link: string; 
+  public link: string;
 
   constructor() {
     this.artifact = null;

@@ -1,6 +1,6 @@
 export interface ArtifactReference {
-    groupId: string|null;
-    artifactId: string;
-    name: string;
-    version: string;
+  groupId: string | null;
+  artifactId: string;
+  name: string;
+  version: string;
 }

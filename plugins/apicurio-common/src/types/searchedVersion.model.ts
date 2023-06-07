@@ -15,24 +15,21 @@
  * limitations under the License.
  */
 
-
 // tslint:disable-next-line:interface-name
 export interface SearchedVersion {
-
-    globalId: number;
-    contentId: number|null;
-    version: number;
-    type: string;
-    state: string;
-    name: string;
-    description: string;
-    labels: string[];
-    createdOn: Date;
-    createdBy: string;
-
+  globalId: number;
+  contentId: number | null;
+  version: number;
+  type: string;
+  state: string;
+  name: string;
+  description: string;
+  labels: string[];
+  createdOn: Date;
+  createdBy: string;
 }
 
 export interface SearchedVersionResults {
-    versions: SearchedVersion[];
-    count: number;
-  } 
+  versions: SearchedVersion[];
+  count: number;
+}

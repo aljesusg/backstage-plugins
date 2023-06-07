@@ -1,4 +1,4 @@
-# @janus-idp/plugin-apicurio-common
+# @janus-idp/backstage-plugin-apicurio-common
 
 Welcome to the common package for the apicurio plugin!
 

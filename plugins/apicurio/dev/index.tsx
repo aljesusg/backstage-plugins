@@ -7,6 +7,6 @@ createDevApp()
   .addPage({
     element: <ApicurioPage />,
     title: 'Root Page',
-    path: '/apicurio'
+    path: '/apicurio',
   })
   .render();

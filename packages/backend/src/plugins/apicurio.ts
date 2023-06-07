@@ -1,4 +1,4 @@
-import { createRouter } from '@janus-idp/plugin-apicurio-backend';
+import { createRouter } from '@janus-idp/backstage-plugin-apicurio-backend';
 import { Router } from 'express';
 import { PluginEnvironment } from '../types';
 

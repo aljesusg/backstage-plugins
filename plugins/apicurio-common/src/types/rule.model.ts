@@ -17,8 +17,6 @@
 
 // tslint:disable-next-line:interface-name
 export interface Rule {
-
-    type: string;
-    config: string;
-
+  type: string;
+  config: string;
 }

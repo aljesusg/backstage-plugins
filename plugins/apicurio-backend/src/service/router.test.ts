@@ -13,7 +13,7 @@ describe('createRouter', () => {
       logger: {
         error: (message: any) => message,
       } as Logger,
-      config: new ConfigReader({})
+      config: new ConfigReader({}),
     });
     app = express().use(router);
   });

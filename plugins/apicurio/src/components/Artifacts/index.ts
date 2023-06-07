@@ -1,2 +1,2 @@
-export * from './ArtifactDetailComponent';
+export * from './ArtifactDetail';
 export * from './Artifacts';

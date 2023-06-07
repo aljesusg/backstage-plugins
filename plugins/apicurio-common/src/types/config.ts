@@ -1,5 +1,5 @@
 export type ApicurioConfig = {
-    url: string;
-    serviceAccountToken?: string;
-    skipTLSVerify?: boolean;
-}
+  url: string;
+  serviceAccountToken?: string;
+  skipTLSVerify?: boolean;
+};

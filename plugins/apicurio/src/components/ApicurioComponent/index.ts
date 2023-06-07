@@ -1,1 +1,1 @@
-export * from './ApicurioComponent'
+export * from './ApicurioComponent';
