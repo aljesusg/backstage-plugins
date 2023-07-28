@@ -187,8 +187,7 @@ export const filterByName = (
 const filterValidation: {
   [key: string]: (item: IstioConfigItem) => boolean | undefined;
 } = {
-  filterByValid: (item: IstioConfigItem) =>
-    item.validation && item.validation.valid,
+  filterByValid: (item: IstioConfigItem) => item.validation?.valid,
   filterByNotValid: (item: IstioConfigItem) =>
     item.validation && !item.validation.valid,
   filterByNotValidated: (item: IstioConfigItem) => !item.validation,

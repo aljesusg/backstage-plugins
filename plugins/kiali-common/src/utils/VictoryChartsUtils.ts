@@ -81,6 +81,37 @@ export const toVCLine = (
   return buildVCLine(toVCDatapoints(dps, name), { name: name, color: color });
 };
 
+const calculateDatapoints = (item: [Metric, Metric]): Datapoint[] => {
+  const datapoints: Datapoint[] = [];
+  const minDatapointsLength =
+    item[0].datapoints.length < item[1].datapoints.length
+      ? item[0].datapoints.length
+      : item[1].datapoints.length;
+  for (let j = 0, sourceIdx = 0, destIdx = 0; j < minDatapointsLength; j++) {
+    if (item[0].datapoints[sourceIdx][0] !== item[1].datapoints[destIdx][0]) {
+      // Usually, all series have the same samples at same timestamps (i.e. series are time synced or synced on the x axis).
+      // There are rare cases when there are some additional samples usually at the beginning or end of some series.
+      // If this happens, let's skip these additional samples, to have properly x-axis synced values.
+      if (item[0].datapoints[sourceIdx][0] < item[1].datapoints[destIdx][0]) {
+        sourceIdx++;
+      } else {
+        destIdx++;
+      }
+      continue;
+    }
+
+    datapoints.push([
+      item[0].datapoints[sourceIdx][0],
+      item[0].datapoints[sourceIdx][1],
+      item[1].datapoints[destIdx][1],
+    ]);
+    sourceIdx++;
+    destIdx++;
+  }
+
+  return datapoints;
+};
+
 const buildResult = (
   pairedMetrics: { [key: string]: [Metric?, Metric?] },
   unit: string,
@@ -94,42 +125,7 @@ const buildResult = (
     let name: string = '';
     if (twoLines[0] !== undefined && twoLines[1] !== undefined) {
       name = twoLines[0].name;
-      const minDatapointsLength =
-        twoLines[0].datapoints.length < twoLines[1].datapoints.length
-          ? twoLines[0].datapoints.length
-          : twoLines[1].datapoints.length;
-
-      for (
-        let j = 0, sourceIdx = 0, destIdx = 0;
-        j < minDatapointsLength;
-        j++
-      ) {
-        if (
-          twoLines[0].datapoints[sourceIdx][0] !==
-          twoLines[1].datapoints[destIdx][0]
-        ) {
-          // Usually, all series have the same samples at same timestamps (i.e. series are time synced or synced on the x axis).
-          // There are rare cases when there are some additional samples usually at the beginning or end of some series.
-          // If this happens, let's skip these additional samples, to have properly x-axis synced values.
-          if (
-            twoLines[0].datapoints[sourceIdx][0] <
-            twoLines[1].datapoints[destIdx][0]
-          ) {
-            sourceIdx++;
-          } else {
-            destIdx++;
-          }
-          continue;
-        }
-
-        datapoints.push([
-          twoLines[0].datapoints[sourceIdx][0],
-          twoLines[0].datapoints[sourceIdx][1],
-          twoLines[1].datapoints[destIdx][1],
-        ]);
-        sourceIdx++;
-        destIdx++;
-      }
+      datapoints = calculateDatapoints(twoLines as [Metric, Metric]);
     } else if (twoLines[0] !== undefined) {
       // Assign zero value to "y0" to denote "no data" for the destination reporter
       name = twoLines[0].name;
