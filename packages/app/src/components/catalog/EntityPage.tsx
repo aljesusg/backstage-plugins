@@ -54,7 +54,7 @@ import {
 import { EntityTechdocsContent } from '@backstage/plugin-techdocs';
 import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
-
+import { EntityKialiContent } from '@janus-idp/backstage-plugin-kiali';
 import { Button, Grid } from '@material-ui/core';
 
 const techdocsContent = (
@@ -166,6 +166,10 @@ const serviceEntityPage = (
     <EntityLayout.Route path="/docs" title="Docs">
       {techdocsContent}
     </EntityLayout.Route>
+
+    <EntityLayout.Route path="/kiali" title="kiali">
+         <EntityKialiContent />
+       </EntityLayout.Route>
   </EntityLayout>
 );
 
@@ -377,3 +381,4 @@ export const entityPage = (
     <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>
   </EntitySwitch>
 );
+

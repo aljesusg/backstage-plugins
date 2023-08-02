@@ -21,7 +21,6 @@ import {
 } from '@janus-idp/backstage-plugin-kiali-common';
 
 import { kialiApiRef } from '../../api';
-import { KialiEndpoints } from '../../api/apiClient';
 import { calculateHealth } from './health';
 import { OverviewCard } from './OverviewCard';
 import { OverviewToolbar } from './OverviewToolbar';
@@ -69,12 +68,7 @@ export const Overview = (props: OverviewProps) => {
     ovType: OverviewType = overviewType,
     dir: DirectionType = direction,
   ) => {
-    await kialiClient
-      .get(KialiEndpoints.getOverview, {
-        duration: dur,
-        overviewType: ovType,
-        direction: dir,
-      })
+    await kialiClient.getOverview(ovType, dur, dir)
       .then(response => {
         if (response.errors.length > 0) {
           setErrors(response.errors);

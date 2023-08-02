@@ -1,5 +1,6 @@
 import { ConfigReader } from '@backstage/config';
-
+import { HostDiscovery } from '@backstage/backend-common';
+import { CatalogClient } from '@backstage/catalog-client';
 import express from 'express';
 import { setupServer } from 'msw/node';
 import request from 'supertest';
@@ -45,13 +46,16 @@ describe('createRouter', () => {
   beforeAll(async () => {
     const mockConfig = new ConfigReader(MockConfig, 'kiali');
     const kiali = readKialiConfigs(mockConfig);
+    const mockCatalog = new CatalogClient({
+      discoveryApi: HostDiscovery.fromConfig(mockConfig),
+    });
     const logger = createLogger({
       transports: [new transports.Console({ silent: true })],
     });
     const kialiAPI = new KialiApiImpl({ logger, kiali });
     app = express();
     app.use(express.json());
-    const router = makeRouter(logger, kialiAPI);
+    const router = makeRouter(logger, kialiAPI, mockCatalog);
     app.use('/', router);
   });
 

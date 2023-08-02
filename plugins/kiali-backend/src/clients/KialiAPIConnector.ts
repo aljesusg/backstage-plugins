@@ -1,5 +1,18 @@
 import { Logger } from 'winston';
+import { Entity } from '@backstage/catalog-model';
+import {
+  CertsInfo,
+  ComputedServerConfig,
+  config,
+  defaultServerConfig,
+  FetchResponseWrapper,
+  KialiConfigT,
+  KialiDetails,
+  StatusState,
+  TLSStatus,
+} from '@janus-idp/backstage-plugin-kiali-common';
 
+/*
 import {
   CanaryUpgradeStatus,
   CertsInfo,
@@ -26,9 +39,9 @@ import {
   TLSStatus,
   ValidationStatus,
 } from '@janus-idp/backstage-plugin-kiali-common';
-
-import { filterNsByAnnotation } from '../filters/byAnnotation';
-import { OverviewQuery } from '../service/router';
+*/
+//import { filterNsByAnnotation } from '../filters/byAnnotation';
+//import { OverviewQuery } from '../service/router';
 import { KialiFetcher } from './fetch';
 
 export type Options = {
@@ -37,8 +50,8 @@ export type Options = {
 };
 
 export interface KialiApi {
-  fetchConfig(): Promise<FetchResponseWrapper>;
-  fetchOverviewNamespaces(query: OverviewQuery): Promise<FetchResponseWrapper>;
+  fetchConfig(entity: Entity): Promise<FetchResponseWrapper>;
+  //fetchOverviewNamespaces(entity: Entity): Promise<FetchResponseWrapper>;
 }
 
 export class KialiApiImpl implements KialiApi {
@@ -57,7 +70,7 @@ export class KialiApiImpl implements KialiApi {
       username: '',
     };
   }
-
+  /*
   private queryMetrics = (options: IstioMetricsOptions) => {
     const filters = options.filters?.map(f => `filters[]=${f}`).join('&');
     return (
@@ -84,9 +97,9 @@ export class KialiApiImpl implements KialiApi {
       direction: (direction as Direction) || 'inbound',
       reporter: direction === 'inbound' ? 'destination' : 'source',
     };
-  };
+  };*/
 
-  async fetchConfig(): Promise<FetchResponseWrapper> {
+  async fetchConfig(_: Entity): Promise<FetchResponseWrapper> {
     let response: FetchResponseWrapper = { errors: [], warnings: [] };
     await this.kialiFetcher.checkSession().then(resp => {
       response = resp;
@@ -148,7 +161,7 @@ export class KialiApiImpl implements KialiApi {
     }
     return response;
   }
-
+  /*
   async fetchOverviewNamespaces(
     query: OverviewQuery,
   ): Promise<FetchResponseWrapper> {
@@ -332,5 +345,5 @@ export class KialiApiImpl implements KialiApi {
     }
 
     return response;
-  }
+  }*/
 }

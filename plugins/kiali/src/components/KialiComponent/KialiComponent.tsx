@@ -23,7 +23,6 @@ import {
 } from '@janus-idp/backstage-plugin-kiali-common';
 
 import { kialiApiRef } from '../../api';
-import { KialiEndpoints } from '../../api/apiClient';
 import { Overview } from '../Overview';
 
 export const KialiComponent = () => {
@@ -37,7 +36,7 @@ export const KialiComponent = () => {
       // Check if the config is loaded
       let config = kialiConfig;
       if (config.kialiConsole === '') {
-        await kialiClient.get(KialiEndpoints.getConfig).then(response => {
+        await kialiClient.getConfig().then(response => {
           if (response.errors.length > 0) {
             setErrors(response.errors);
           }

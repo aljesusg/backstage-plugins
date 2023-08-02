@@ -1,16 +1,16 @@
 import { Entity } from '@backstage/catalog-model';
-import { createApiRef, DiscoveryApi } from '@backstage/core-plugin-api';
-
+import { createApiRef, DiscoveryApi, IdentityApi} from '@backstage/core-plugin-api';
+import {   OverviewType,
+} from '@janus-idp/backstage-plugin-kiali-common';
 import {
   DirectionType,
-  FetchResponseWrapper,
-  KUBERNETES_ANNOTATION,
-  KUBERNETES_LABEL_SELECTOR,
-  KUBERNETES_NAMESPACE,
+  FetchResponseWrapper
 } from '@janus-idp/backstage-plugin-kiali-common';
+import { stringifyEntityRef } from '@backstage/catalog-model';
 
 export interface KialiApi {
-  get(endpoint: string, query?: Query): Promise<FetchResponseWrapper>;
+  getConfig(): Promise<FetchResponseWrapper>;
+  getOverview(overviewType: OverviewType, duration: number, direction: DirectionType): Promise<FetchResponseWrapper>;
   setEntity(entity: Entity): void;
 }
 
@@ -22,17 +22,9 @@ export const kialiApiRef = createApiRef<KialiApi>({
  * Query Interface
  */
 
-type Query = {
-  ns?: string;
-  nss?: string[];
-  overviewType?: string;
-  duration?: number;
-  direction?: DirectionType;
-};
-
 export const KialiEndpoints = {
-  getOverview: 'overview',
-  getConfig: 'config',
+  getOverview: '/overview',
+  getConfig: '/config',
 };
 
 /**
@@ -40,67 +32,53 @@ export const KialiEndpoints = {
  */
 export class KialiApiClient implements KialiApi {
   private readonly discoveryApi: DiscoveryApi;
+  private readonly identityApi: IdentityApi;
   protected entity: Entity | null;
 
-  constructor(discoveryApi: DiscoveryApi) {
-    this.discoveryApi = discoveryApi;
+  constructor(options: {
+    discoveryApi: DiscoveryApi;
+    identityApi: IdentityApi;}) {
+    this.discoveryApi = options.discoveryApi;
+    this.identityApi = options.identityApi;
     this.entity = null;
-  }
-
-  private async getBaseUrl() {
-    return `${await this.discoveryApi.getBaseUrl('kiali')}`;
   }
 
   setEntity = (entity: Entity) => {
     this.entity = entity;
   };
-
-  private addParam = (key: string, query: URLSearchParams) => {
-    const value = this.entity?.metadata.annotations![key];
-    if (value) {
-      query.append(encodeURIComponent(key), encodeURIComponent(value));
-    }
-  };
-
-  private getQuery = (q?: Query): string => {
-    const queryString = new URLSearchParams();
-    if (this.entity?.metadata.annotations) {
-      this.addParam(KUBERNETES_ANNOTATION, queryString);
-      this.addParam(KUBERNETES_LABEL_SELECTOR, queryString);
-      this.addParam(KUBERNETES_NAMESPACE, queryString);
-    }
-    if (!q) {
-      return `?${queryString}`;
-    }
-    if (q.ns) {
-      queryString.append('ns', q.ns);
-    }
-    if (q.nss) {
-      queryString.append('nss', q.nss.join(','));
-    }
-    if (q.overviewType) {
-      queryString.append('overviewType', q.overviewType);
-    }
-    if (q.duration) {
-      queryString.append('duration', q.duration.toString());
-    }
-    if (q.direction) {
-      queryString.append('direction', q.direction.toString());
-    }
-    return `?${queryString}`;
-  };
-
+    
   private async getAPI(
     endpoint: string,
-    q?: Query,
+    requestBody: any,
   ): Promise<FetchResponseWrapper> {
-    const proxyUrl = await this.getBaseUrl();
-    const url = `${proxyUrl}/${endpoint}${this.getQuery(q)}`;
-    const jsonResponse = await fetch(url);
+    const url = `${await this.discoveryApi.getBaseUrl('kiali')}/${endpoint}`;
+    // const url = `${proxyUrl}/${endpoint}${this.getQuery(q)}`;
+    const { token: idToken } = await this.identityApi.getCredentials();
+    const jsonResponse = await fetch(url,{
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+        ...(idToken && { Authorization: `Bearer ${idToken}` }),
+      },
+      body: JSON.stringify(requestBody)}
+    );
     return jsonResponse.json();
   }
 
-  async get(endpoint: string, query?: Query): Promise<FetchResponseWrapper> {
-    return this.getAPI(endpoint, query);
+  async getConfig(): Promise<FetchResponseWrapper> {
+    const requestBody = {entityRef: stringifyEntityRef(this.entity!)}
+    return this.getAPI(KialiEndpoints.getConfig, requestBody)
+  }
+
+  async getOverview(overviewType: OverviewType, duration: number, direction: DirectionType): Promise<FetchResponseWrapper> {
+    const requestBody = {
+      entityRef: stringifyEntityRef(this.entity!),
+      query: {        
+          duration,
+          overviewType,
+          direction,        
+      }
+    }
+    return this.getAPI(KialiEndpoints.getOverview, requestBody)
   }
 }

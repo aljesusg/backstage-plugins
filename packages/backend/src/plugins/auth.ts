@@ -3,7 +3,10 @@ import {
   defaultAuthProviderFactories,
   providers,
 } from '@backstage/plugin-auth-backend';
-
+import {
+  DEFAULT_NAMESPACE,
+  stringifyEntityRef,
+} from '@backstage/catalog-model';
 import { Router } from 'express';
 
 import { PluginEnvironment } from '../types';
@@ -37,10 +40,14 @@ export default async function createPlugin(
       // your own, see the auth documentation for more details:
       //
       //   https://backstage.io/docs/auth/identity-resolver
-      github: providers.github.create({
+      openshift: providers.oauth2.create({
         signIn: {
-          resolver(_, ctx) {
-            const userRef = 'user:default/guest'; // Must be a full entity reference
+          resolver(info, ctx) {
+            const userRef = stringifyEntityRef({
+              kind: 'User',
+              name: info.result.fullProfile.username || info.result.fullProfile.id,
+              namespace: DEFAULT_NAMESPACE,
+            });
             return ctx.issueToken({
               claims: {
                 sub: userRef, // The user's own identity
@@ -48,9 +55,8 @@ export default async function createPlugin(
               },
             });
           },
-          // resolver: providers.github.resolvers.usernameMatchingUserEntityName(),
         },
-      }),
+      })
     },
   });
 }

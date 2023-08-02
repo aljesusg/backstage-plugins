@@ -30,10 +30,11 @@ import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
 import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
 import { UserSettingsPage } from '@backstage/plugin-user-settings';
 
-import { apis } from './apis';
+import { apis, openshiftApiRef } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { Root } from './components/Root';
 import { searchPage } from './components/search/SearchPage';
+import { SignInPage } from '@backstage/core-components';
 
 const app = createApp({
   apis,
@@ -51,6 +52,20 @@ const app = createApp({
     bind(orgPlugin.externalRoutes, {
       catalogIndex: catalogPlugin.routes.catalogIndex,
     });
+  },
+  components: {
+    SignInPage: props => (
+      <SignInPage
+        {...props}
+        auto
+        provider={{
+          id: 'openshift-auth-provider',
+          title: 'Openshift',
+          message: 'Sign in using openshift',
+          apiRef: openshiftApiRef,
+        }}
+      />
+    ),
   },
 });
 
