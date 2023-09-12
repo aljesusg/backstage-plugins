@@ -9,7 +9,8 @@ import { Button } from '@material-ui/core';
 
 import { KUBERNETES_NAMESPACE } from '@janus-idp/backstage-plugin-kiali-common';
 
-import { KialiComponent, KialiNoPath } from './components/KialiComponent';
+import { KialiComponent } from './pages/KialiComponent';
+import { KialiNoPath } from './pages/NoPath';
 
 export const KUBERNETES_ANNOTATION = 'backstage.io/kubernetes-id';
 const KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION =
@@ -41,7 +42,7 @@ export const Router = () => {
       <Routes>
         <Route path="/" element={<KialiComponent />} />
         <Route path="/overview" element={<KialiComponent />} />
-        <Route path="*" element={<KialiNoPath />} />
+        <Route caseSensitive path="/*" element={<KialiNoPath />} />
       </Routes>
     );
   }

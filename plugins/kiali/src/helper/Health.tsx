@@ -9,12 +9,12 @@ import WarningRounded from '@material-ui/icons/WarningRounded';
 
 import {
   ComputedServerConfig,
-  defaultServerConfig,
   DEGRADED,
   FAILURE,
   HEALTHY,
   NA,
   NOT_READY,
+  OverviewType,
   POD_STATUS,
   ProxyStatus,
   RequestHealth,
@@ -23,7 +23,12 @@ import {
   ToleranceConfig,
 } from '@janus-idp/backstage-plugin-kiali-common';
 
+import { getName } from '../utils';
 import { calculateErrorRate } from './ErrorRate/ErrorRate';
+
+export const switchType = <T, U, V>(type: OverviewType, caseApp: T, caseService: U, caseWorkload: V): T | U | V => {
+  return type === 'app' ? caseApp : type === 'service' ? caseService : caseWorkload;
+};
 
 interface HealthConfig {
   items: HealthItem[];
@@ -156,17 +161,6 @@ export const isProxyStatusComponentSynced = (
   return componentStatus === 'Synced';
 };
 
-export const getName = (
-  serverConfig: ComputedServerConfig,
-  durationSeconds: number,
-): string => {
-  const name = serverConfig.durations[durationSeconds];
-  if (name) {
-    return name;
-  }
-  return `${durationSeconds} seconds`;
-};
-
 export const isProxyStatusSynced = (status: ProxyStatus): boolean => {
   return (
     isProxyStatusComponentSynced(status.CDS) &&
@@ -270,7 +264,6 @@ export class ServiceHealth extends Health {
     if (ctx.hasSidecar) {
       // Request errors
       const reqError = calculateErrorRate(
-        serverConfig,
         ns,
         srv,
         'service',
@@ -282,7 +275,7 @@ export class ServiceHealth extends Health {
           : `${reqError.errorRatio.global.status.value.toFixed(2)}%`;
       const item: HealthItem = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: reqError.errorRatio.global.status.status,
         children: [
@@ -296,7 +289,7 @@ export class ServiceHealth extends Health {
       items.push(item);
       statusConfig = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: reqError.errorRatio.global.status.status,
         threshold: reqError.errorRatio.global.toleranceConfig,
@@ -332,7 +325,6 @@ export class AppHealth extends Health {
     ctx: HealthContext,
   ) =>
     new AppHealth(
-      serverConfig,
       ns,
       app,
       json.workloadStatuses,
@@ -341,7 +333,6 @@ export class AppHealth extends Health {
     );
 
   private static computeItems(
-    serverConfig: ComputedServerConfig,
     ns: string,
     app: string,
     workloadStatuses: WorkloadStatus[],
@@ -382,7 +373,6 @@ export class AppHealth extends Health {
     // Request errors
     if (ctx.hasSidecar) {
       const reqError = calculateErrorRate(
-        serverConfig,
         ns,
         app,
         'app',
@@ -393,7 +383,7 @@ export class AppHealth extends Health {
       const both = mergeStatus(reqIn.status, reqOut.status);
       const item: HealthItem = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: both,
         children: [
@@ -403,7 +393,7 @@ export class AppHealth extends Health {
       };
       statusConfig = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: reqError.errorRatio.global.status.status,
         threshold: reqError.errorRatio.global.toleranceConfig,
@@ -416,7 +406,6 @@ export class AppHealth extends Health {
   }
 
   constructor(
-    serverConfig: ComputedServerConfig,
     ns: string,
     app: string,
     workloadStatuses: WorkloadStatus[],
@@ -425,7 +414,6 @@ export class AppHealth extends Health {
   ) {
     super(
       AppHealth.computeItems(
-        serverConfig,
         ns,
         app,
         workloadStatuses,
@@ -438,14 +426,12 @@ export class AppHealth extends Health {
 
 export class WorkloadHealth extends Health {
   public static fromJson = (
-    serverConfig: ComputedServerConfig,
     ns: string,
     workload: string,
     json: any,
     ctx: HealthContext,
   ) =>
     new WorkloadHealth(
-      serverConfig,
       ns,
       workload,
       json.workloadStatus,
@@ -454,7 +440,6 @@ export class WorkloadHealth extends Health {
     );
 
   private static computeItems(
-    serverConfig: ComputedServerConfig,
     ns: string,
     workload: string,
     workloadStatus: WorkloadStatus,
@@ -519,7 +504,6 @@ export class WorkloadHealth extends Health {
     // Request errors
     if (ctx.hasSidecar) {
       const reqError = calculateErrorRate(
-        serverConfig,
         ns,
         workload,
         'workload',
@@ -530,7 +514,7 @@ export class WorkloadHealth extends Health {
       const both = mergeStatus(reqIn.status, reqOut.status);
       const item: HealthItem = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: both,
         children: [
@@ -542,7 +526,7 @@ export class WorkloadHealth extends Health {
 
       statusConfig = {
         title: createTrafficTitle(
-          getName(serverConfig, ctx.rateInterval).toLowerCase(),
+          getName(ctx.rateInterval).toLowerCase(),
         ),
         status: reqError.errorRatio.global.status.status,
         threshold: reqError.errorRatio.global.toleranceConfig,
@@ -553,7 +537,6 @@ export class WorkloadHealth extends Health {
   }
 
   constructor(
-    serverConfig: ComputedServerConfig,
     ns: string,
     workload: string,
     workloadStatus: WorkloadStatus,
@@ -562,7 +545,6 @@ export class WorkloadHealth extends Health {
   ) {
     super(
       WorkloadHealth.computeItems(
-        serverConfig,
         ns,
         workload,
         workloadStatus,
@@ -575,7 +557,6 @@ export class WorkloadHealth extends Health {
 
 export const healthNotAvailable = (): AppHealth => {
   return new AppHealth(
-    defaultServerConfig,
     '',
     '',
     [],

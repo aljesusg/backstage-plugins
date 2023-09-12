@@ -5,9 +5,8 @@ import {
   config,
   FetchResponseWrapper,
   KialiDetails,
-  KialiFetchError,
 } from '@janus-idp/backstage-plugin-kiali-common';
-
+import { AlertMessage } from "@backstage/core-plugin-api";
 import fs from 'fs';
 import https from 'https';
 
@@ -36,8 +35,7 @@ export class KialiFetcher {
 
   async checkSession(): Promise<FetchResponseWrapper> {
     const response: FetchResponseWrapper = {
-      errors: [],
-      warnings: [],
+      alerts: []
     };
     /*
      * Check if the actual cookie/session is valid
@@ -70,12 +68,12 @@ export class KialiFetcher {
             );
           })
           .catch(err =>
-            response.errors.push(this.handleUnsuccessfulResponse(err)),
+            response.alerts.push(this.handleUnsuccessfulResponse(err)),
           );
       } else {
-        response.errors.push({
-          errorType: 'NOT_FOUND',
-          message: 'No service account token for Kiali',
+        response.alerts.push({
+          message: '[NOT_FOUND] No service account token for Kiali',
+          severity: 'error'
         });
       }
       return response;
@@ -103,7 +101,7 @@ export class KialiFetcher {
           return {};
         })
         .catch(err =>
-          response.errors.push(this.handleUnsuccessfulResponse(err)),
+          response.alerts.push(this.handleUnsuccessfulResponse(err)),
         );
     }
     /*
@@ -126,21 +124,19 @@ export class KialiFetcher {
   handleUnsuccessfulResponse(
     res: AxiosError,
     endpoint?: string,
-  ): KialiFetchError {
-    const message = res.message;
+  ): AlertMessage {
     const codeMessage = res.code ? `status (${res.code}) ` : '';
     const url = endpoint || res.config?.url || '';
     const urlMessage = url ? `when fetching "${url}" in "Kiali";` : '';
     this.logger.warn(`Error response axios: ${JSON.stringify(res)}`);
     this.logger.warn(
-      `Received ${res.status} ${codeMessage} ${urlMessage} body=[${message}]`,
+      `Received ${res.status} ${codeMessage} ${urlMessage} body=[${res.message}]`,
     );
-
+    const errorType = res.code || 'UNKNOWN_ERROR';
+    const message =`[${errorType}][${res.status || 'unknown code'}] ${res.message} in path ${url || 'unknown'}  `
     return {
-      errorType: res.code || 'UNKNOWN_ERROR',
       message,
-      statusCode: res.status,
-      resourcePath: url,
+      severity: 'error'
     };
   }
 

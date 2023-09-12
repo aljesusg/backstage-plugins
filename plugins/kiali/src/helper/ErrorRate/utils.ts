@@ -1,5 +1,4 @@
 import {
-  ComputedServerConfig,
   HealthAnnotationConfig,
   HealthAnnotationType,
   RateHealthConfig,
@@ -11,6 +10,7 @@ import {
   ToleranceConfig,
 } from '@janus-idp/backstage-plugin-kiali-common';
 
+import { serverConfig } from '../../config';
 import { Rate, RequestTolerance } from './types';
 
 export const emptyRate = (): Rate => {
@@ -92,7 +92,6 @@ export const checkExpr = (
 export const configCache: { [key: string]: RateHealthConfig } = {};
 
 export const getRateHealthConfig = (
-  serverConfig: ComputedServerConfig,
   ns: string,
   name: string,
   kind: string,

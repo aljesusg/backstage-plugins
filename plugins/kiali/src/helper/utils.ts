@@ -1,7 +1,5 @@
 import {
-  MeshCluster,
   OverviewType,
-  ServerConfig,
 } from '@janus-idp/backstage-plugin-kiali-common';
 
 export const switchType = <T, U, V>(
@@ -21,8 +19,4 @@ export const switchType = <T, U, V>(
       return caseWorkload;
     }
   }
-};
-
-export const getHomeCluster = (cfg: ServerConfig): MeshCluster | undefined => {
-  return Object.values(cfg.clusters).find(cluster => cluster.isKialiHome);
 };

@@ -13,7 +13,6 @@ import {
   computePrometheusRateParams,
   config,
   defaultMetricsDuration,
-  defaultServerConfig,
   Direction,
   FetchResponseWrapper,
   HealthNamespace,
@@ -62,7 +61,6 @@ export class KialiApiImpl implements KialiApi {
     this.kialiDetails = options.kiali;
     this.kialiFetcher = new KialiFetcher(options.kiali, options.logger);
     this.kialiconfig = {
-      server: defaultServerConfig,
       kialiConsole: options.kiali.url,
       meshTLSStatus: { status: '', autoMTLSEnabled: false, minTLS: '' },
       username: '',
@@ -98,7 +96,7 @@ export class KialiApiImpl implements KialiApi {
   };
 
   async fetchInfo(): Promise<FetchResponseWrapper> {
-    const response: FetchResponseWrapper = { errors: [], warnings: [] };
+    const response: FetchResponseWrapper = { alerts: []};
     const info: KialiInfo = {
       status: INITIAL_STATUS_STATE,
       auth: { sessionInfo: {}, strategy: AuthStrategy.anonymous },
@@ -111,7 +109,7 @@ export class KialiApiImpl implements KialiApi {
           return info;
         })
         .catch(err =>
-          response.errors.push(
+          response.alerts.push(
             this.kialiFetcher.handleUnsuccessfulResponse(err),
           ),
         ),
@@ -121,15 +119,15 @@ export class KialiApiImpl implements KialiApi {
           info.auth = resp.data;
           // Check if strategy is the same
           if (this.kialiDetails.strategy !== info.auth.strategy) {
-            response.errors.push({
-              errorType: 'Bad configuration',
-              message: `Strategy in app-config is ${this.kialiDetails.strategy} and kiali server is configured for ${info.auth.strategy}`,
+            response.alerts.push({
+              severity: 'error',
+              message: `[Bad Configuration] Strategy in app-config is ${this.kialiDetails.strategy} and kiali server is configured for ${info.auth.strategy}`,
             });
           }
           return info;
         })
         .catch(err =>
-          response.errors.push(
+          response.alerts.push(
             this.kialiFetcher.handleUnsuccessfulResponse(err),
           ),
         ),
@@ -139,12 +137,12 @@ export class KialiApiImpl implements KialiApi {
   }
 
   async fetchConfig(): Promise<FetchResponseWrapper> {
-    let response: FetchResponseWrapper = { errors: [], warnings: [] };
+    let response: FetchResponseWrapper = { alerts: [] };
     await this.kialiFetcher.checkSession().then(resp => {
       response = resp;
       return response;
     });
-    if (response.errors.length === 0) {
+    if (response.alerts.length === 0) {
       this.logger.info(
         `Authenticated user ${this.kialiFetcher.getSession().username}`,
       );
@@ -157,7 +155,7 @@ export class KialiApiImpl implements KialiApi {
             return this.kialiconfig;
           })
           .catch(err =>
-            response.errors.push(
+            response.alerts.push(
               this.kialiFetcher.handleUnsuccessfulResponse(err),
             ),
           ),
@@ -168,7 +166,7 @@ export class KialiApiImpl implements KialiApi {
             return this.kialiconfig;
           })
           .catch(err =>
-            response.errors.push(
+            response.alerts.push(
               this.kialiFetcher.handleUnsuccessfulResponse(err),
             ),
           ),
@@ -179,7 +177,7 @@ export class KialiApiImpl implements KialiApi {
             return this.kialiconfig;
           })
           .catch(err =>
-            response.errors.push(
+            response.alerts.push(
               this.kialiFetcher.handleUnsuccessfulResponse(err),
             ),
           ),
@@ -192,16 +190,14 @@ export class KialiApiImpl implements KialiApi {
 
   async fetchNamespaces(entity: Entity): Promise<FetchResponseWrapper> {
     const result: FetchResponseWrapper = {
-      errors: [],
-      warnings: [],
+      alerts: []
     };
 
     await this.kialiFetcher.checkSession().then(resp => {
-      result.errors = resp.errors;
-      result.warnings = resp.warnings;
+      result.alerts = resp.alerts;
       return result;
     });
-    if (result.errors.length === 0) {
+    if (result.alerts.filter(al => al.severity === 'error').length === 0) {
       await this.handlePromise<Namespace[]>(
         result,
         config.api.urls.namespaces,
@@ -224,7 +220,7 @@ export class KialiApiImpl implements KialiApi {
       .catch(err =>
         handlerError
           ? handlerError(err)
-          : result.errors.push(
+          : result.alerts.push(
               this.kialiFetcher.handleUnsuccessfulResponse(err, endpoint),
             ),
       );
@@ -236,26 +232,24 @@ export class KialiApiImpl implements KialiApi {
   ): Promise<FetchResponseWrapper> {
     this.logger.debug(`Fetching namespaces`);
     const result: FetchResponseWrapper = {
-      errors: [],
-      warnings: [],
+      alerts: []
     };
 
     const response: OverviewData = {
       namespaces: [],
     };
     await this.kialiFetcher.checkSession().then(resp => {
-      result.errors = resp.errors;
-      result.warnings = resp.warnings;
+      result.alerts = resp.alerts;
       return result;
     });
-    if (result.errors.length === 0) {
+    if (result.alerts.filter(al => al.severity === 'error').length === 0) {
       await this.handlePromise<Namespace[]>(
         result,
         config.api.urls.namespaces,
         resp => (response.namespaces = filterNsByAnnotation(resp.data, entity)),
       );
 
-      if (result.errors.length === 0) {
+      if (result.alerts.filter(al => al.severity === 'error').length === 0) {
         const meshStatus = 'MTLS_NOT_ENABLED';
         const duration = query.duration || defaultMetricsDuration;
         const overviewType = query.overviewType;
@@ -319,7 +313,7 @@ export class KialiApiImpl implements KialiApi {
                 const metricsNs: NsMetrics = resp.data;
                 ns.metrics = metricsNs.request_count;
                 ns.errorMetrics = metricsNs.request_error_count;
-                if (ns.name === this.kialiconfig.server.istioNamespace) {
+                if (ns.name === this.kialiconfig.server!.istioNamespace) {
                   ns.controlPlaneMetrics = {
                     istiod_proxy_time: metricsNs.pilot_proxy_convergence_time,
                     istiod_cpu: metricsNs.process_cpu_seconds_total,

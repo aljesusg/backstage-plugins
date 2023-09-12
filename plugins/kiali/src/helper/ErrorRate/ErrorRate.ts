@@ -1,5 +1,4 @@
 import {
-  ComputedServerConfig,
   getRequestErrorsStatus,
   HEALTHY,
   NA,
@@ -113,7 +112,6 @@ export const calculateStatus = (
 };
 
 export const calculateErrorRate = (
-  serverConfig: ComputedServerConfig,
   ns: string,
   name: string,
   kind: string,
@@ -123,7 +121,7 @@ export const calculateErrorRate = (
   const rateAnnotation = new RateHealth(requests.healthAnnotations);
   const conf =
     rateAnnotation.toleranceConfig ||
-    getRateHealthConfig(serverConfig, ns, name, kind).tolerance;
+    getRateHealthConfig(ns, name, kind).tolerance;
 
   // Get aggregate
   const status = getAggregate(requests, conf);

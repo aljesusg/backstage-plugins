@@ -11,6 +11,8 @@ import {
   TLSStatus,
 } from '../';
 
+import { AlertMessage } from "@backstage/core-plugin-api";
+
 export type NsMetrics = { [key: string]: Metric[] };
 export type HealthNamespace = { [key: string]: NamespaceHealth };
 
@@ -29,19 +31,10 @@ export type FetchResponse =
   | HealthNamespace
   | Namespace[];
 
-export interface StatusError {
-  errorType: string;
-  message?: string;
-  resourcePath?: string;
-  statusCode?: number;
-}
-
-export type KialiFetchError = StatusError;
 
 export interface FetchResponseWrapper {
-  errors: KialiFetchError[];
-  warnings: KialiFetchError[];
+  alerts: AlertMessage[];
   response?: FetchResponse;
 }
 
-export type FetchResult = FetchResponse | KialiFetchError | number;
+export type FetchResult = FetchResponse | AlertMessage | number;

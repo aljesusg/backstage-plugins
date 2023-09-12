@@ -35,7 +35,8 @@
     "@material-ui/lab": "^4.0.0-alpha.45",
     "@patternfly/patternfly": "5.0.2",
     "@patternfly/react-charts": "7.0.0",
-    "react-use": "^17.2.4"
+    "react-use": "^17.2.4",
+    "typestyle": "^2.4.0"
   },
   "peerDependencies": {
     "react": "^16.13.1 || ^17.0.0",
@@ -48,6 +49,7 @@
     "@backstage/test-utils": "1.4.1",
     "@testing-library/jest-dom": "5.17.0",
     "@testing-library/react": "12.1.5",
+    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "14.4.3",
     "@types/node": "20.2.5",
     "cross-fetch": "4.0.0",

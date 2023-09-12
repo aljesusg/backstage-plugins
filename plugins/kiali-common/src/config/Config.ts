@@ -3,25 +3,24 @@ import deepFreeze from 'deep-freeze';
 
 import {
   CertsInfo,
-  ComputedServerConfig,
-  defaultServerConfig,
+  ServerConfig,
   MILLISECONDS,
   TLSStatus,
   UNIT_TIME,
 } from '../types';
 
+export type Durations = { [key: number]: string };
+
+export type ComputedServerConfig = ServerConfig & {
+  durations: Durations;
+};
+
 export type KialiConfigT = {
   meshTLSStatus?: TLSStatus;
-  server: ComputedServerConfig;
+  server?: ComputedServerConfig;
   istioCerts?: CertsInfo[];
   kialiConsole: string;
   username: string;
-};
-
-export const DefaultKialiConfig = {
-  server: defaultServerConfig,
-  kialiConsole: '',
-  username: '',
 };
 
 export const durationsTuples: [number, string][] = [

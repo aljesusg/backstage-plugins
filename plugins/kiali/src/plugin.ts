@@ -6,7 +6,7 @@ import {
   identityApiRef,
 } from '@backstage/core-plugin-api';
 
-import { KialiApiClient, kialiApiRef } from './api';
+import { KialiApiClient, kialiApiRef } from './services/Api';
 import { overviewRouteRef, rootRouteRef } from './routes';
 
 export const kialiPlugin = createPlugin({
@@ -32,7 +32,7 @@ export const KialiPage = kialiPlugin.provide(
   createRoutableExtension({
     name: 'KialiPage',
     component: () =>
-      import('./components/KialiComponent').then(m => m.KialiComponent),
+      import('./pages/KialiComponent').then(m => m.KialiComponent),
     mountPoint: rootRouteRef,
   }),
 );
