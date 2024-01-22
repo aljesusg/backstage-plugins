@@ -5,7 +5,7 @@ import { KialiDetails } from '../service/config';
 export const MILLISECONDS = 1000;
 export const AUTH_KIALI_TOKEN = 'kiali-token-aes';
 
-const timeOutforWarningUser = 60 * MILLISECONDS;
+export const timeOutforWarningUser = 60 * MILLISECONDS;
 
 export enum AuthStrategy {
   anonymous = 'anonymous',
@@ -34,10 +34,10 @@ export type AuthInfo = {
 export class KialiAuthentication {
   protected cookie: string;
   protected auth: AuthInfo;
-  private readonly sessionSeconds: number;
+  private readonly sessionMilliSeconds: number;
 
   constructor(KD: KialiDetails) {
-    this.sessionSeconds = KD.sessionTime
+    this.sessionMilliSeconds = KD.sessionTime
       ? KD.sessionTime * MILLISECONDS
       : timeOutforWarningUser;
     this.auth = {
@@ -54,6 +54,10 @@ export class KialiAuthentication {
     return this.auth;
   };
 
+  getSecondsSession = () => {
+    return this.sessionMilliSeconds;
+  };
+
   getCookie = () => {
     return this.cookie;
   };
@@ -63,7 +67,7 @@ export class KialiAuthentication {
   };
 
   checkIfExtendSession = () => {
-    return this.timeLeft() < this.sessionSeconds;
+    return this.timeLeft() < this.sessionMilliSeconds;
   };
 
   setKialiCookie = (rawCookie: string) => {
@@ -79,11 +83,9 @@ export class KialiAuthentication {
 
   private timeLeft = (): number => {
     const expiresOn = moment(this.auth.sessionInfo.expiresOn);
-
     if (expiresOn <= moment()) {
       return -1;
     }
-
     return expiresOn.diff(moment());
   };
 

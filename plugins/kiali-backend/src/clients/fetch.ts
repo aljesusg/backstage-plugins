@@ -54,7 +54,10 @@ export class KialiFetcher {
       case AuthStrategy.anonymous:
         break;
       case AuthStrategy.token: {
-        if (this.KialiDetails.serviceAccountToken === '') {
+        if (
+          !this.KialiDetails.serviceAccountToken ||
+          this.KialiDetails.serviceAccountToken === ''
+        ) {
           result.verify = false;
           result.message = `Attribute 'serviceAccountToken' is not in the backstage configuration`;
           result.helper = `For more information follow the steps in https://janus-idp.io/plugins/kiali`;
