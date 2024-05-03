@@ -17,6 +17,6 @@ dynamicPlugins:
               height: 75vh
             if:
               anyOf:
-                - hasAnnotation: backstage.io/kubernetes-namespace
+                - hasAnnotation: backstage.io/kiali-namespace
           importName: EntityKialiContent
           mountPoint: entity.page.kiali/cards

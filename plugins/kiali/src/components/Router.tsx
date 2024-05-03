@@ -34,12 +34,12 @@ import {
 } from '../routes';
 import { KialiProvider } from '../store/KialiProvider';
 
-export const KUBERNETES_ANNOTATION = 'backstage.io/kubernetes-id';
-export const KUBERNETES_NAMESPACE = 'backstage.io/kubernetes-namespace';
-export const KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION =
-  'backstage.io/kubernetes-label-selector';
+export const KIALI_ANNOTATION = 'backstage.io/kiali-label';
+export const KIALI_NAMESPACE = 'backstage.io/kiali-namespace';
+export const KIALI_LABEL_SELECTOR_QUERY_ANNOTATION =
+  'backstage.io/kiali-label-selector';
 
-export const ANNOTATION_SUPPORTED = [KUBERNETES_NAMESPACE];
+export const ANNOTATION_SUPPORTED = [KIALI_NAMESPACE];
 
 const validateAnnotation = (entity: Entity) => {
   let validated = false;

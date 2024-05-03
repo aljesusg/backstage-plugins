@@ -26,10 +26,10 @@ The Kiali plugin has the following capabilities:
   annotations:
     ...
 
-    backstage.io/kubernetes-namespace: <RESOURCE_NS>
+    backstage.io/kiali-namespace: <RESOURCE_NS>
   ```
 
-  For now we support kubernetes-namespace due Kiali works in namespace level. We expect to support `kubernetes-label-selector` and `kubernetes-id`
+  For now we support kiali-namespace due Kiali works in namespace level.
 
 - The following annotation is added to the `catalog-info.yaml` file of entity to view the latest `PipelineRun` in the CI/CD tab of the application:
 

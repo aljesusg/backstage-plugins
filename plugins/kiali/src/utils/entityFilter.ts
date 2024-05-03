@@ -1,16 +1,16 @@
 import { Entity } from '@backstage/catalog-model';
 
 import {
-  KUBERNETES_ANNOTATION,
-  KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION,
-  KUBERNETES_NAMESPACE,
+  KIALI_ANNOTATION,
+  KIALI_LABEL_SELECTOR_QUERY_ANNOTATION,
+  KIALI_NAMESPACE,
 } from '../components/Router';
 import { Namespace } from '../types/Namespace';
 
 const filterById = (ns: Namespace[], value: string): Namespace[] => {
   const values = value.split(',');
   return ns.filter(
-    n => n.labels && values.includes(n.labels[KUBERNETES_ANNOTATION]),
+    n => n.labels && values.includes(n.labels[KIALI_ANNOTATION]),
   );
 };
 
@@ -43,25 +43,17 @@ export const filterNsByAnnotation = (
   }
 
   let nsFilter = ns;
-  nsFilter = annotations[KUBERNETES_ANNOTATION]
-    ? filterById(
-        nsFilter,
-        decodeURIComponent(annotations[KUBERNETES_ANNOTATION]),
-      )
+  nsFilter = annotations[KIALI_ANNOTATION]
+    ? filterById(nsFilter, decodeURIComponent(annotations[KIALI_ANNOTATION]))
     : nsFilter;
-  nsFilter = annotations[KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION]
+  nsFilter = annotations[KIALI_LABEL_SELECTOR_QUERY_ANNOTATION]
     ? filterBySelector(
         nsFilter,
-        decodeURIComponent(
-          annotations[KUBERNETES_LABEL_SELECTOR_QUERY_ANNOTATION],
-        ),
+        decodeURIComponent(annotations[KIALI_LABEL_SELECTOR_QUERY_ANNOTATION]),
       )
     : nsFilter;
-  nsFilter = annotations[KUBERNETES_NAMESPACE]
-    ? filterByNs(
-        nsFilter,
-        decodeURIComponent(annotations[KUBERNETES_NAMESPACE]),
-      )
+  nsFilter = annotations[KIALI_NAMESPACE]
+    ? filterByNs(nsFilter, decodeURIComponent(annotations[KIALI_NAMESPACE]))
     : nsFilter;
   return nsFilter;
 };

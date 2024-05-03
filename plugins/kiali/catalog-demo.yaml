@@ -9,7 +9,7 @@ metadata:
     - core
     - servicemesh
   annotations:
-    'backstage.io/kubernetes-namespace': istio-system,bookinfo
+    'backstage.io/kiali-namespace': istio-system,bookinfo
 spec:
   type: service
   lifecycle: production
