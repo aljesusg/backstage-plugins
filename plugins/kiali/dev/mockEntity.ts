@@ -7,7 +7,7 @@ export const mockEntity: Entity = {
     name: 'backstage',
     description: 'backstage.io',
     annotations: {
-      'backstage.io/kubernetes-namespace':
+      'backstage.io/kiali-namespace':
         'istio-system,bookinfo,travel-agency,travel-portal,travel-control',
     },
   },
@@ -43,7 +43,7 @@ export const mockEntityAnnotationNoNamespace: Entity = {
     name: 'backstage',
     description: 'backstage.io',
     annotations: {
-      'backstage.io/kubernetes-namespace': 'no-namespace',
+      'backstage.io/kiali-namespace': 'no-namespace',
     },
   },
   spec: {
